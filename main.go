@@ -10,6 +10,7 @@ import (
 	"github.com/gcla/gowid/widgets/edit"
 	"github.com/gcla/gowid/widgets/fill"
 	"github.com/gcla/gowid/widgets/framed"
+	"github.com/gcla/gowid/widgets/list"
 	"github.com/gcla/gowid/widgets/pile"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gcla/gowid/widgets/vpadding"
@@ -17,10 +18,15 @@ import (
 )
 
 func main() {
-	text1 := text.New("hello world")
+	walker := list.NewSimpleListWalker([]gowid.IWidget{
+		text.New("2021-06-01"),
+		text.New("2021-06-02"),
+		text.New("2021-06-03"),
+	})
 
+	list := list.New(walker)
 	titles := pile.New([]gowid.IContainerWidget{
-		&gowid.ContainerWidget{IWidget: text1, D: gowid.RenderWithWeight{W: 1}},
+		&gowid.ContainerWidget{IWidget: list, D: gowid.RenderWithWeight{W: 1}},
 	})
 
 	editor := edit.New(edit.Options{Text: "abcde"})
