@@ -23,8 +23,8 @@ func main() {
 		&gowid.ContainerWidget{IWidget: text1, D: gowid.RenderWithWeight{W: 1}},
 	})
 
-	editor := edit.New(edit.Options{Caption: "main\n", Text: "abcde"})
-	statusLine := text.New("hello world\nhi")
+	editor := edit.New(edit.Options{Text: "abcde"})
+	statusLine := text.New("status line")
 
 	main := pile.New([]gowid.IContainerWidget{
 		&gowid.ContainerWidget{IWidget: editor, D: gowid.RenderWithWeight{W: 1}},
