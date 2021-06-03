@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/gcla/gowid"
 	"github.com/gcla/gowid/widgets/columns"
 	"github.com/gcla/gowid/widgets/divider"
@@ -49,10 +52,14 @@ func main() {
 		TitleWidget: text.New("Gote"),
 	})
 
-	app, _ := gowid.NewApp(gowid.AppArgs{
+	app, err := gowid.NewApp(gowid.AppArgs{
 		View: view,
 		Log:  log.StandardLogger(),
 	})
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 
 	app.SimpleMainLoop()
 }
