@@ -14,8 +14,8 @@ import (
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gcla/gowid/widgets/vpadding"
 	"github.com/mopp/gote/app"
-	"github.com/mopp/gote/editor"
-	"github.com/mopp/gote/titles"
+	"github.com/mopp/gote/ui/editor"
+	"github.com/mopp/gote/ui/titles"
 	log "github.com/sirupsen/logrus"
 )
 
