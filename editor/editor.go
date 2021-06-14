@@ -14,8 +14,8 @@ type Widget struct {
 	*pile.Widget
 }
 
-func New(t string) *Widget {
-	e := edit.New(edit.Options{Text: t})
+func New() *Widget {
+	e := edit.New()
 	statusLine := text.New("Started.")
 
 	return &Widget{
@@ -54,4 +54,8 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 	w.statusLine().SetText("", app)
 
 	return w.edit().UserInput(ev, size, focus, app)
+}
+
+func (w *Widget) SetText(text string, app gowid.IApp) {
+	w.edit().SetText(text, app)
 }

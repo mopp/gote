@@ -7,14 +7,16 @@ import (
 	"github.com/gcla/gowid/widgets/styled"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
-	log "github.com/sirupsen/logrus"
 )
+
+type OnTitleSelected func(string, gowid.IApp)
 
 type Widget struct {
 	*list.Widget
+	onTitleSelected OnTitleSelected
 }
 
-func New(titles []string) *Widget {
+func New(titles []string, f OnTitleSelected) *Widget {
 	ws := make([]gowid.IWidget, len(titles))
 
 	for i, t := range titles {
@@ -24,7 +26,8 @@ func New(titles []string) *Widget {
 	walker := list.NewSimpleListWalker(ws)
 
 	return &Widget{
-		Widget: list.New(walker),
+		Widget:          list.New(walker),
+		onTitleSelected: f,
 	}
 }
 
@@ -54,8 +57,8 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 
 		return true
 	} else if evk.Key() == tcell.KeyEnter {
-		// TODO: Implement callback.
-		log.Info("Got KeyEnter")
+		title := walker.At(current).(*isselected.Widget).Not.(*text.Widget)
+		w.onTitleSelected(title.Content().String(), app)
 
 		return true
 	}

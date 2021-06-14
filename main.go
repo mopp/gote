@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/gcla/gowid"
@@ -18,16 +19,42 @@ import (
 )
 
 func main() {
-	f := redirectLogger("gote.log")
-	defer f.Close()
+	{
+		f := redirectLogger("gote.log")
+		defer f.Close()
+	}
 
-	titles := titles.New([]string{
-		"aaa",
-		"bbb",
-		"ccc",
-	})
+	config := newConfig()
 
-	editor := editor.New("this is a pen.")
+	files, err := ioutil.ReadDir(config.note_dir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		log.Fatal(err)
+	}
+
+	filenames := make([]string, len(files))
+	for i, file := range files {
+		filenames[i] = file.Name()
+	}
+
+	// TODO: pass struct title { display_name string, path string } instead of string.
+	editor := editor.New()
+
+	var content *columns.Widget
+
+	f := func(title string, app gowid.IApp) {
+		path := config.note_dir + "/" + title
+		text, err := ioutil.ReadFile(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		editor.SetText(string(text), app)
+
+		// TODO: define interface.
+		content.SetFocus(app, 2)
+	}
+	titles := titles.New(filenames, f)
 
 	// TODO
 	keywords := pile.New([]gowid.IContainerWidget{
@@ -37,7 +64,7 @@ func main() {
 	})
 
 	vline := fill.New('|')
-	content := columns.New([]gowid.IContainerWidget{
+	content = columns.New([]gowid.IContainerWidget{
 		&gowid.ContainerWidget{IWidget: vpadding.New(titles, gowid.VAlignTop{}, gowid.RenderFlow{}), D: gowid.RenderWithWeight{W: 1}},
 		&gowid.ContainerWidget{IWidget: vline, D: gowid.RenderWithUnits{U: 1}},
 		&gowid.ContainerWidget{IWidget: editor, D: gowid.RenderWithWeight{W: 2}},
@@ -61,7 +88,7 @@ func main() {
 	})
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		log.Fatal(err)
 	}
 
 	app.SimpleMainLoop()
