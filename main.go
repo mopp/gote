@@ -13,6 +13,7 @@ import (
 	"github.com/gcla/gowid/widgets/pile"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gcla/gowid/widgets/vpadding"
+	"github.com/mopp/gote/app"
 	"github.com/mopp/gote/editor"
 	"github.com/mopp/gote/titles"
 	log "github.com/sirupsen/logrus"
@@ -26,35 +27,27 @@ func main() {
 
 	config := newConfig()
 
-	files, err := ioutil.ReadDir(config.note_dir)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		log.Fatal(err)
-	}
-
-	filenames := make([]string, len(files))
-	for i, file := range files {
-		filenames[i] = file.Name()
-	}
+	notes := loadNotes(&config)
 
 	// TODO: pass struct title { display_name string, path string } instead of string.
 	editor := editor.New()
 
 	var content *columns.Widget
 
-	f := func(title string, app gowid.IApp) {
-		path := config.note_dir + "/" + title
-		text, err := ioutil.ReadFile(path)
-		if err != nil {
-			log.Fatal(err)
-		}
+	titles := titles.New(
+		notes,
+		func(n *app.Note, app gowid.IApp) {
+			text, err := n.Read()
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		editor.SetText(string(text), app)
+			editor.SetText(text, app)
 
-		// TODO: define interface.
-		content.SetFocus(app, 2)
-	}
-	titles := titles.New(filenames, f)
+			// TODO: define interface.
+			content.SetFocus(app, 2)
+		},
+	)
 
 	// TODO
 	keywords := pile.New([]gowid.IContainerWidget{
@@ -101,4 +94,19 @@ func redirectLogger(path string) *os.File {
 	}
 	log.SetOutput(f)
 	return f
+}
+
+func loadNotes(config *Config) []app.Note {
+	files, err := ioutil.ReadDir(config.note_dir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		log.Fatal(err)
+	}
+
+	notes := make([]app.Note, len(files))
+	for i, file := range files {
+		notes[i] = app.NewNote(config.note_dir, file)
+	}
+
+	return notes
 }

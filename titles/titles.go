@@ -7,27 +7,30 @@ import (
 	"github.com/gcla/gowid/widgets/styled"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
+	"github.com/mopp/gote/app"
 )
 
-type OnTitleSelected func(string, gowid.IApp)
+type OnNoteSelected func(*app.Note, gowid.IApp)
 
 type Widget struct {
 	*list.Widget
-	onTitleSelected OnTitleSelected
+	notes          []app.Note
+	onNoteSelected OnNoteSelected
 }
 
-func New(titles []string, f OnTitleSelected) *Widget {
-	ws := make([]gowid.IWidget, len(titles))
+func New(notes []app.Note, f OnNoteSelected) *Widget {
+	ws := make([]gowid.IWidget, len(notes))
 
-	for i, t := range titles {
-		ws[i] = createTitleText(t)
+	for i, n := range notes {
+		ws[i] = createTitleText(n.String())
 	}
 
 	walker := list.NewSimpleListWalker(ws)
 
 	return &Widget{
-		Widget:          list.New(walker),
-		onTitleSelected: f,
+		Widget:         list.New(walker),
+		notes:          notes,
+		onNoteSelected: f,
 	}
 }
 
@@ -57,8 +60,8 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 
 		return true
 	} else if evk.Key() == tcell.KeyEnter {
-		title := walker.At(current).(*isselected.Widget).Not.(*text.Widget)
-		w.onTitleSelected(title.Content().String(), app)
+		note := &w.notes[current.(list.ListPos).ToInt()]
+		w.onNoteSelected(note, app)
 
 		return true
 	}
