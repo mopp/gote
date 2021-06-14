@@ -29,20 +29,14 @@ func main() {
 
 	notes := loadNotes(&config)
 
-	// TODO: pass struct title { display_name string, path string } instead of string.
 	editor := editor.New()
 
 	var content *columns.Widget
 
 	titles := titles.New(
 		notes,
-		func(n *app.Note, app gowid.IApp) {
-			text, err := n.Read()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			editor.SetText(text, app)
+		func(note *app.Note, app gowid.IApp) {
+			editor.SetNote(note, app)
 
 			// TODO: define interface.
 			content.SetFocus(app, 2)

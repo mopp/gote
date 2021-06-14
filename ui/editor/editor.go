@@ -7,11 +7,13 @@ import (
 	"github.com/gcla/gowid/widgets/pile"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
+	"github.com/mopp/gote/app"
 	log "github.com/sirupsen/logrus"
 )
 
 type Widget struct {
 	*pile.Widget
+	note *app.Note
 }
 
 func New() *Widget {
@@ -42,10 +44,8 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 	}
 
 	if evk.Key() == tcell.KeyCtrlS {
+		w.note.Save(w.edit())
 		w.statusLine().SetText("Saved.", app)
-		// TODO: Implement callback.
-		log.Info("Saved.")
-		log.Info(w.edit().Text())
 
 		return true
 	}
@@ -56,6 +56,15 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 	return w.edit().UserInput(ev, size, focus, app)
 }
 
-func (w *Widget) SetText(text string, app gowid.IApp) {
-	w.edit().SetText(text, app)
+func (w *Widget) SetNote(note *app.Note, app gowid.IApp) {
+	text, err := note.Read()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	e := w.edit()
+	e.SetText(text, app)
+	e.SetCursorPos(0, app)
+
+	w.note = note
 }
