@@ -10,23 +10,21 @@ import (
 	"github.com/gcla/gowid/widgets/edit"
 	"github.com/gcla/gowid/widgets/fill"
 	"github.com/gcla/gowid/widgets/framed"
-	"github.com/gcla/gowid/widgets/list"
 	"github.com/gcla/gowid/widgets/pile"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gcla/gowid/widgets/vpadding"
+	"github.com/mopp/gote/titles"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	walker := list.NewSimpleListWalker([]gowid.IWidget{
-		text.New("2021-06-01"),
-		text.New("2021-06-02"),
-		text.New("2021-06-03"),
-	})
+	f := redirectLogger("gote.log")
+	defer f.Close()
 
-	list := list.New(walker)
-	titles := pile.New([]gowid.IContainerWidget{
-		&gowid.ContainerWidget{IWidget: list, D: gowid.RenderWithWeight{W: 1}},
+	titles := titles.New([]string{
+		"aaa",
+		"bbb",
+		"ccc",
 	})
 
 	editor := edit.New(edit.Options{Text: "abcde"})
@@ -58,9 +56,14 @@ func main() {
 		TitleWidget: text.New("Gote"),
 	})
 
+	palette := gowid.Palette{
+		"red":      gowid.MakePaletteEntry(gowid.ColorRed, gowid.ColorDarkBlue),
+		"selected": gowid.MakePaletteEntry(gowid.ColorBlack, gowid.ColorDarkGray),
+	}
 	app, err := gowid.NewApp(gowid.AppArgs{
-		View: view,
-		Log:  log.StandardLogger(),
+		View:    view,
+		Palette: &palette,
+		Log:     log.StandardLogger(),
 	})
 
 	if err != nil {
@@ -68,4 +71,13 @@ func main() {
 	}
 
 	app.SimpleMainLoop()
+}
+
+func redirectLogger(path string) *os.File {
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("Error opening log file: %v", err)
+	}
+	log.SetOutput(f)
+	return f
 }
