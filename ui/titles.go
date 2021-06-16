@@ -1,4 +1,4 @@
-package titles
+package ui
 
 import (
 	"github.com/gcla/gowid"
@@ -8,32 +8,26 @@ import (
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
 	"github.com/mopp/gote/app"
-	log "github.com/sirupsen/logrus"
 )
 
 type OnNoteSelected func(*app.Note, gowid.IApp)
 type OnCreate func(app gowid.IApp)
 
-type Widget struct {
+type titlesWidget struct {
 	*list.Widget
-	notes          []app.Note
+	notes          []*app.Note
 	onNoteSelected OnNoteSelected
-	onCreate       OnCreate
 }
 
-func New(notes []app.Note, f1 OnNoteSelected) *Widget {
-	return &Widget{
+func newTitlesWidget(notes []*app.Note, f1 OnNoteSelected) *titlesWidget {
+	return &titlesWidget{
 		Widget:         list.New(createWalker(notes)),
 		notes:          notes,
 		onNoteSelected: f1,
-		onCreate: func(app gowid.IApp) {
-			newCreateDialogWidget()
-			// d.Open(app.SubWidget(), gowid.RenderWithRatio{R: 0.5}, app)
-		},
 	}
 }
 
-func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.Selector, app gowid.IApp) bool {
+func (w *titlesWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.Selector, app gowid.IApp) bool {
 	evk, ok := ev.(*tcell.EventKey)
 	if !ok {
 		return false
@@ -59,14 +53,8 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 
 		return true
 	} else if evk.Key() == tcell.KeyEnter {
-		note := &w.notes[current.(list.ListPos).ToInt()]
+		note := w.notes[current.(list.ListPos).ToInt()]
 		w.onNoteSelected(note, app)
-
-		return true
-	} else if evk.Key() == tcell.KeyCtrlN || r == 'N' {
-		log.Info("before onCreate")
-		w.onCreate(app)
-		log.Info("after onCreate")
 
 		return true
 	}
@@ -74,7 +62,7 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 	return false
 }
 
-func (w *Widget) AddNote(n app.Note, app gowid.IApp) {
+func (w *titlesWidget) AddNote(n *app.Note, app gowid.IApp) {
 	// TODO: Sort
 	w.notes = append(w.notes, n)
 	w.SetWalker(createWalker(w.notes), app)
@@ -87,7 +75,7 @@ func createTitleText(title string) *isselected.Widget {
 	return isselected.New(t, nil, focused)
 }
 
-func createWalker(notes []app.Note) *list.SimpleListWalker {
+func createWalker(notes []*app.Note) *list.SimpleListWalker {
 	ws := make([]gowid.IWidget, len(notes))
 
 	for i, n := range notes {

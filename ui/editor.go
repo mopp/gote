@@ -1,4 +1,4 @@
-package editor
+package ui
 
 import (
 	"github.com/gcla/gowid"
@@ -11,40 +11,43 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Widget struct {
+type editorWidget struct {
 	*pile.Widget
-	note *app.Note
+	note    *app.Note
+	service *app.Service
 }
 
-func New() *Widget {
+func newEditorWidget(s *app.Service) *editorWidget {
 	e := edit.New()
 	statusLine := text.New("Started.")
 
-	return &Widget{
+	return &editorWidget{
 		Widget: pile.New([]gowid.IContainerWidget{
 			&gowid.ContainerWidget{IWidget: e, D: gowid.RenderWithWeight{W: 1}},
 			&gowid.ContainerWidget{IWidget: divider.NewAscii(), D: gowid.RenderFlow{}},
 			&gowid.ContainerWidget{IWidget: statusLine, D: gowid.RenderWithUnits{U: 1}},
 		}),
+		service: s,
 	}
 }
 
-func (w *Widget) edit() *edit.Widget {
+func (w *editorWidget) edit() *edit.Widget {
 	return w.SubWidgets()[0].(*gowid.ContainerWidget).SubWidget().(*edit.Widget)
 }
 
-func (w *Widget) statusLine() *text.Widget {
+func (w *editorWidget) statusLine() *text.Widget {
 	return w.SubWidgets()[2].(*gowid.ContainerWidget).SubWidget().(*text.Widget)
 }
 
-func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.Selector, app gowid.IApp) bool {
+func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.Selector, app gowid.IApp) bool {
 	evk, ok := ev.(*tcell.EventKey)
 	if !ok {
 		return false
 	}
 
 	if evk.Key() == tcell.KeyCtrlS {
-		w.note.Save(w.edit())
+		w.note.SetText(w.edit().String())
+		w.service.UpdateNote(w.note)
 		w.statusLine().SetText("Saved.", app)
 
 		return true
@@ -56,7 +59,8 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 	return w.edit().UserInput(ev, size, focus, app)
 }
 
-func (w *Widget) SetNote(note *app.Note, app gowid.IApp) {
+func (w *editorWidget) SetNote(note *app.Note, app gowid.IApp) {
+	// TODO: w.service.ReadNoteBy(name)
 	text, err := note.Read()
 	if err != nil {
 		log.Fatal(err)

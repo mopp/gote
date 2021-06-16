@@ -4,15 +4,17 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type Note struct {
 	dir  string
 	name string
+	text string
 }
 
-func NewNote(dir string, name string) Note {
-	return Note{
+func newNote(dir string, name string) *Note {
+	return &Note{
 		dir:  dir,
 		name: name,
 	}
@@ -20,6 +22,10 @@ func NewNote(dir string, name string) Note {
 
 func (n *Note) String() string {
 	return n.name
+}
+
+func (n *Note) SetText(text string) {
+	n.text = text
 }
 
 func (n *Note) Read() (string, error) {
@@ -32,14 +38,14 @@ func (n *Note) Read() (string, error) {
 	return string(text), nil
 }
 
-func (n *Note) Save(text io.Reader) error {
+func (n *Note) save() error {
 	f, err := os.OpenFile(n.path(), os.O_RDWR|os.O_CREATE, 0666)
 
 	if err != nil {
 		return err
 	}
 
-	_, err = io.Copy(f, text)
+	_, err = io.Copy(f, strings.NewReader(n.text))
 
 	return err
 }

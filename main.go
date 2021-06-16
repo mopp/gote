@@ -1,77 +1,28 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/gcla/gowid"
-	"github.com/gcla/gowid/widgets/columns"
-	"github.com/gcla/gowid/widgets/divider"
-	"github.com/gcla/gowid/widgets/fill"
-	"github.com/gcla/gowid/widgets/framed"
-	"github.com/gcla/gowid/widgets/pile"
-	"github.com/gcla/gowid/widgets/text"
-	"github.com/gcla/gowid/widgets/vpadding"
 	"github.com/mopp/gote/app"
-	"github.com/mopp/gote/ui/editor"
-	"github.com/mopp/gote/ui/titles"
+	"github.com/mopp/gote/ui"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	{
-		f := redirectLogger("gote.log")
-		defer f.Close()
-	}
+	logFile := redirectLogger("gote.log")
+	defer logFile.Close()
 
-	config := newConfig()
-
-	notes := loadNotes(&config)
-
-	editor := editor.New()
-
-	var content *columns.Widget
-	var view *framed.Widget
-	var titlesWidget *titles.Widget
-
-	titlesWidget = titles.New(
-		notes,
-		func(note *app.Note, app gowid.IApp) {
-			editor.SetNote(note, app)
-
-			// TODO: define interface.
-			content.SetFocus(app, 2)
-		},
-	)
-
-	// TODO
-	keywords := pile.New([]gowid.IContainerWidget{
-		&gowid.ContainerWidget{IWidget: text.New("Keywords"), D: gowid.RenderWithWeight{W: 1}},
-		&gowid.ContainerWidget{IWidget: divider.NewAscii(), D: gowid.RenderFlow{}},
-		&gowid.ContainerWidget{IWidget: text.New("Relation"), D: gowid.RenderWithWeight{W: 1}},
-	})
-
-	vline := fill.New('|')
-	content = columns.New([]gowid.IContainerWidget{
-		&gowid.ContainerWidget{IWidget: vpadding.New(titlesWidget, gowid.VAlignTop{}, gowid.RenderFlow{}), D: gowid.RenderWithWeight{W: 1}},
-		&gowid.ContainerWidget{IWidget: vline, D: gowid.RenderWithUnits{U: 1}},
-		&gowid.ContainerWidget{IWidget: editor, D: gowid.RenderWithWeight{W: 2}},
-		&gowid.ContainerWidget{IWidget: vline, D: gowid.RenderWithUnits{U: 1}},
-		&gowid.ContainerWidget{IWidget: keywords, D: gowid.RenderWithWeight{W: 1}},
-	})
-
-	view = framed.New(content, framed.Options{
-		Frame:       framed.AsciiFrame,
-		TitleWidget: text.New("Gote"),
-	})
-
+	config := app.NewConfig()
+	service := app.NewService(config)
+	mainWidget := ui.NewMainWidget(service, config)
 	palette := gowid.Palette{
 		"red":      gowid.MakePaletteEntry(gowid.ColorRed, gowid.ColorDarkBlue),
 		"selected": gowid.MakePaletteEntry(gowid.ColorBlack, gowid.ColorDarkGray),
 	}
+
 	app, err := gowid.NewApp(gowid.AppArgs{
-		View:    view,
+		View:    mainWidget,
 		Palette: &palette,
 		Log:     log.StandardLogger(),
 	})
@@ -88,21 +39,8 @@ func redirectLogger(path string) *os.File {
 	if err != nil {
 		log.Fatalf("Error opening log file: %v", err)
 	}
+
 	log.SetOutput(f)
+
 	return f
-}
-
-func loadNotes(config *Config) []app.Note {
-	files, err := ioutil.ReadDir(config.note_dir)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		log.Fatal(err)
-	}
-
-	notes := make([]app.Note, len(files))
-	for i, file := range files {
-		notes[i] = app.NewNote(config.note_dir, file.Name())
-	}
-
-	return notes
 }
