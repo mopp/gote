@@ -2,25 +2,24 @@ package app
 
 import (
 	"io"
-	"io/fs"
 	"io/ioutil"
 	"os"
 )
 
 type Note struct {
-	dir string
-	fi  fs.FileInfo
+	dir  string
+	name string
 }
 
-func NewNote(dir string, fi fs.FileInfo) Note {
+func NewNote(dir string, name string) Note {
 	return Note{
-		dir: dir,
-		fi:  fi,
+		dir:  dir,
+		name: name,
 	}
 }
 
 func (n *Note) String() string {
-	return n.fi.Name()
+	return n.name
 }
 
 func (n *Note) Read() (string, error) {
@@ -46,5 +45,5 @@ func (n *Note) Save(text io.Reader) error {
 }
 
 func (n *Note) path() string {
-	return n.dir + "/" + n.fi.Name()
+	return n.dir + n.name
 }

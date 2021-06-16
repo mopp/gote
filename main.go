@@ -32,8 +32,10 @@ func main() {
 	editor := editor.New()
 
 	var content *columns.Widget
+	var view *framed.Widget
+	var titlesWidget *titles.Widget
 
-	titles := titles.New(
+	titlesWidget = titles.New(
 		notes,
 		func(note *app.Note, app gowid.IApp) {
 			editor.SetNote(note, app)
@@ -52,14 +54,14 @@ func main() {
 
 	vline := fill.New('|')
 	content = columns.New([]gowid.IContainerWidget{
-		&gowid.ContainerWidget{IWidget: vpadding.New(titles, gowid.VAlignTop{}, gowid.RenderFlow{}), D: gowid.RenderWithWeight{W: 1}},
+		&gowid.ContainerWidget{IWidget: vpadding.New(titlesWidget, gowid.VAlignTop{}, gowid.RenderFlow{}), D: gowid.RenderWithWeight{W: 1}},
 		&gowid.ContainerWidget{IWidget: vline, D: gowid.RenderWithUnits{U: 1}},
 		&gowid.ContainerWidget{IWidget: editor, D: gowid.RenderWithWeight{W: 2}},
 		&gowid.ContainerWidget{IWidget: vline, D: gowid.RenderWithUnits{U: 1}},
 		&gowid.ContainerWidget{IWidget: keywords, D: gowid.RenderWithWeight{W: 1}},
 	})
 
-	view := framed.New(content, framed.Options{
+	view = framed.New(content, framed.Options{
 		Frame:       framed.AsciiFrame,
 		TitleWidget: text.New("Gote"),
 	})
@@ -99,7 +101,7 @@ func loadNotes(config *Config) []app.Note {
 
 	notes := make([]app.Note, len(files))
 	for i, file := range files {
-		notes[i] = app.NewNote(config.note_dir, file)
+		notes[i] = app.NewNote(config.note_dir, file.Name())
 	}
 
 	return notes

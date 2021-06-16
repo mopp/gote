@@ -8,29 +8,28 @@ import (
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
 	"github.com/mopp/gote/app"
+	log "github.com/sirupsen/logrus"
 )
 
 type OnNoteSelected func(*app.Note, gowid.IApp)
+type OnCreate func(app gowid.IApp)
 
 type Widget struct {
 	*list.Widget
 	notes          []app.Note
 	onNoteSelected OnNoteSelected
+	onCreate       OnCreate
 }
 
-func New(notes []app.Note, f OnNoteSelected) *Widget {
-	ws := make([]gowid.IWidget, len(notes))
-
-	for i, n := range notes {
-		ws[i] = createTitleText(n.String())
-	}
-
-	walker := list.NewSimpleListWalker(ws)
-
+func New(notes []app.Note, f1 OnNoteSelected) *Widget {
 	return &Widget{
-		Widget:         list.New(walker),
+		Widget:         list.New(createWalker(notes)),
 		notes:          notes,
-		onNoteSelected: f,
+		onNoteSelected: f1,
+		onCreate: func(app gowid.IApp) {
+			newCreateDialogWidget()
+			// d.Open(app.SubWidget(), gowid.RenderWithRatio{R: 0.5}, app)
+		},
 	}
 }
 
@@ -64,9 +63,21 @@ func (w *Widget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.S
 		w.onNoteSelected(note, app)
 
 		return true
+	} else if evk.Key() == tcell.KeyCtrlN || r == 'N' {
+		log.Info("before onCreate")
+		w.onCreate(app)
+		log.Info("after onCreate")
+
+		return true
 	}
 
 	return false
+}
+
+func (w *Widget) AddNote(n app.Note, app gowid.IApp) {
+	// TODO: Sort
+	w.notes = append(w.notes, n)
+	w.SetWalker(createWalker(w.notes), app)
 }
 
 func createTitleText(title string) *isselected.Widget {
@@ -74,4 +85,14 @@ func createTitleText(title string) *isselected.Widget {
 	focused := styled.New(t, gowid.MakePaletteRef("selected"))
 
 	return isselected.New(t, nil, focused)
+}
+
+func createWalker(notes []app.Note) *list.SimpleListWalker {
+	ws := make([]gowid.IWidget, len(notes))
+
+	for i, n := range notes {
+		ws[i] = createTitleText(n.String())
+	}
+
+	return list.NewSimpleListWalker(ws)
 }
