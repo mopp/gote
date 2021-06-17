@@ -18,22 +18,20 @@ type MainWidget struct {
 	service *app.Service
 	titles  *titlesWidget
 	editor  *editorWidget
+	content *columns.Widget
 }
 
 func NewMainWidget(service *app.Service, config *app.Config) *MainWidget {
 	var titles *titlesWidget
 	var editor *editorWidget
+	var content *columns.Widget
 
 	editor = newEditorWidget(service)
-
-	var content *columns.Widget
 
 	titles = newTitlesWidget(
 		service.FetchAllNotes(),
 		func(note *app.Note, app gowid.IApp) {
 			editor.OpenNote(note, app)
-
-			// TODO: define interface.
 			content.SetFocus(app, 2)
 		},
 	)
@@ -65,6 +63,7 @@ func NewMainWidget(service *app.Service, config *app.Config) *MainWidget {
 		service: service,
 		titles:  titles,
 		editor:  editor,
+		content: content,
 	}
 }
 
