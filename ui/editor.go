@@ -13,11 +13,10 @@ import (
 
 type editorWidget struct {
 	*pile.Widget
-	note    *app.Note
-	service *app.Service
+	note *app.Note
 }
 
-func newEditorWidget(s *app.Service) *editorWidget {
+func newEditorWidget() *editorWidget {
 	e := edit.New()
 	statusLine := text.New("Started.")
 
@@ -27,7 +26,6 @@ func newEditorWidget(s *app.Service) *editorWidget {
 			&gowid.ContainerWidget{IWidget: divider.NewAscii(), D: gowid.RenderFlow{}},
 			&gowid.ContainerWidget{IWidget: statusLine, D: gowid.RenderWithUnits{U: 1}},
 		}),
-		service: s,
 	}
 }
 

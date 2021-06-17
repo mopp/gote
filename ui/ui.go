@@ -28,7 +28,7 @@ func NewMainWidget(service *app.Service, config *app.Config) (*MainWidget, error
 	var editor *editorWidget
 	var content *columns.Widget
 
-	editor = newEditorWidget(service)
+	editor = newEditorWidget()
 
 	notes, err := service.FetchAllNotes()
 	if err != nil {
