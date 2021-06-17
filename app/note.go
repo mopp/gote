@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -10,7 +11,6 @@ import (
 type Note struct {
 	dir  string
 	name string
-	text string
 }
 
 func newNote(dir string, name string) *Note {
@@ -20,12 +20,8 @@ func newNote(dir string, name string) *Note {
 	}
 }
 
-func (n *Note) String() string {
+func (n *Note) Title() string {
 	return n.name
-}
-
-func (n *Note) SetText(text string) {
-	n.text = text
 }
 
 func (n *Note) Read() (string, error) {
@@ -38,16 +34,24 @@ func (n *Note) Read() (string, error) {
 	return string(text), nil
 }
 
-func (n *Note) save() error {
+func (n *Note) Write(t string) error {
+	return n.WriteFrom(strings.NewReader(t))
+}
+
+func (n *Note) WriteFrom(w io.Reader) error {
 	f, err := os.OpenFile(n.path(), os.O_RDWR|os.O_CREATE, 0666)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("could not open note at %s: %w", n.path(), err)
 	}
 
-	_, err = io.Copy(f, strings.NewReader(n.text))
+	_, err = io.Copy(f, w)
 
 	return err
+}
+
+func (n *Note) String() string {
+	return n.Title()
 }
 
 func (n *Note) path() string {

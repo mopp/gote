@@ -15,7 +15,12 @@ func main() {
 
 	config := app.NewConfig()
 	service := app.NewService(config)
-	mainWidget := ui.NewMainWidget(service, config)
+	mainWidget, err := ui.NewMainWidget(service, config)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	palette := gowid.Palette{
 		"red":      gowid.MakePaletteEntry(gowid.ColorRed, gowid.ColorDarkBlue),
 		"selected": gowid.MakePaletteEntry(gowid.ColorBlack, gowid.ColorDarkGray),

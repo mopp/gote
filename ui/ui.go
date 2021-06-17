@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/gcla/gowid"
 	"github.com/gcla/gowid/widgets/columns"
 	"github.com/gcla/gowid/widgets/divider"
@@ -21,17 +23,23 @@ type MainWidget struct {
 	content *columns.Widget
 }
 
-func NewMainWidget(service *app.Service, config *app.Config) *MainWidget {
+func NewMainWidget(service *app.Service, config *app.Config) (*MainWidget, error) {
 	var titles *titlesWidget
 	var editor *editorWidget
 	var content *columns.Widget
 
 	editor = newEditorWidget(service)
 
+	notes, err := service.FetchAllNotes()
+	if err != nil {
+		return nil, err
+	}
+
 	titles = newTitlesWidget(
-		service.FetchAllNotes(),
+		notes,
 		func(note *app.Note, app gowid.IApp) {
 			editor.OpenNote(note, app)
+			// TODO: Define struct and method to change focus.
 			content.SetFocus(app, 2)
 		},
 	)
@@ -64,7 +72,7 @@ func NewMainWidget(service *app.Service, config *app.Config) *MainWidget {
 		titles:  titles,
 		editor:  editor,
 		content: content,
-	}
+	}, nil
 }
 
 func (w *MainWidget) Created(n *app.Note) {
@@ -89,6 +97,36 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 			w.titles.AddNote(n, app)
 		})
 		d.Open(w, gowid.RenderWithRatio{R: 0.5}, app)
+
+		return true
+	} else if evk.Key() == tcell.KeyCtrlD {
+		n, err := w.service.FindDailyNoteToday()
+		if err != nil {
+			msg := fmt.Sprintf("could not find daily note: %v", err)
+			w.editor.SetStatusLine(msg, app)
+			return true
+		}
+
+		if n != nil {
+			// Already exist.
+			w.editor.OpenNote(n, app)
+			// TODO: Define struct and method to change focus.
+			w.content.SetFocus(app, 2)
+			return true
+		}
+
+		n, err = w.service.CreateDailyNoteTody()
+
+		if err != nil {
+			msg := fmt.Sprintf("could not create daily note: %v", err)
+			w.editor.SetStatusLine(msg, app)
+			return true
+		}
+
+		w.titles.AddNote(n, app)
+		w.editor.OpenNote(n, app)
+		// TODO: Define struct and method to change focus.
+		w.content.SetFocus(app, 2)
 
 		return true
 	}

@@ -3,8 +3,7 @@ package app
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
-	"os"
+	"time"
 )
 
 type Service struct {
@@ -19,26 +18,81 @@ func NewService(c *Config) *Service {
 
 func (s *Service) CreateNote(name string) *Note {
 	n := newNote(s.config.noteDir, name)
-	n.save()
+	n.Write("")
 
 	return n
 }
 
-func (s *Service) UpdateNote(n *Note) {
-	n.save()
+func (s *Service) FindDailyNoteToday() (*Note, error) {
+	today := s.generateDailyNoteBasenameToday()
+	title := today + ".md"
+
+	n, err := s.findBy(title)
+	if err != nil {
+		return nil, err
+	}
+
+	return n, nil
 }
 
-func (s *Service) FetchAllNotes() []*Note {
+func (s *Service) CreateDailyNoteTody() (*Note, error) {
+	today := s.generateDailyNoteBasenameToday()
+	title := today + ".md"
+
+	n, err := s.findBy(title)
+	if err != nil {
+		// TODO: Define error struct.
+		return nil, fmt.Errorf("already exist: %s", title)
+	}
+
+	if n == nil {
+		n = newNote(s.config.noteDir, title)
+		t :=
+			`## %s
+
+### 今日やったこと
+
+### 明日やること
+
+### 雑記
+
+`
+
+		n.Write(fmt.Sprintf(t, today))
+	}
+
+	return n, nil
+}
+
+func (s *Service) FetchAllNotes() ([]*Note, error) {
 	files, err := ioutil.ReadDir(s.config.noteDir)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		log.Fatal(err)
+		return nil, fmt.Errorf("could not fetch notes at %s: %w", s.config.noteDir, err)
 	}
 
 	notes := make([]*Note, len(files))
-	for i, file := range files {
-		notes[i] = newNote(s.config.noteDir, file.Name())
+	for i, f := range files {
+		notes[i] = newNote(s.config.noteDir, f.Name())
 	}
 
-	return notes
+	return notes, nil
+}
+
+func (s *Service) findBy(title string) (*Note, error) {
+	notes, err := s.FetchAllNotes()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, n := range notes {
+		if n.Title() == title {
+			return n, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (s *Service) generateDailyNoteBasenameToday() string {
+	return time.Now().Format(s.config.dailyNoteTitleFormat)
 }

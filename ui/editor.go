@@ -46,15 +46,14 @@ func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 	}
 
 	if evk.Key() == tcell.KeyCtrlS {
-		w.note.SetText(w.edit().String())
-		w.service.UpdateNote(w.note)
+		w.note.WriteFrom(w.edit())
 		w.statusLine().SetText("Saved.", app)
 
 		return true
 	}
 
 	if w.note != nil {
-		w.statusLine().SetText(w.note.String(), app)
+		w.SetStatusLine(w.note.Title(), app)
 	}
 
 	return w.edit().UserInput(ev, size, focus, app)
@@ -71,5 +70,9 @@ func (w *editorWidget) OpenNote(note *app.Note, app gowid.IApp) {
 	e.SetCursorPos(0, app)
 
 	w.note = note
-	w.statusLine().SetText(w.note.String(), app)
+	w.SetStatusLine(w.note.Title(), app)
+}
+
+func (w *editorWidget) SetStatusLine(text string, app gowid.IApp) {
+	w.statusLine().SetText(w.note.Title(), app)
 }
