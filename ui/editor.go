@@ -53,8 +53,9 @@ func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 		return true
 	}
 
-	// TODO: Clear status line using chanel.
-	w.statusLine().SetText("", app)
+	if w.note != nil {
+		w.statusLine().SetText(w.note.String(), app)
+	}
 
 	return w.edit().UserInput(ev, size, focus, app)
 }
@@ -70,4 +71,5 @@ func (w *editorWidget) OpenNote(note *app.Note, app gowid.IApp) {
 	e.SetCursorPos(0, app)
 
 	w.note = note
+	w.statusLine().SetText(w.note.String(), app)
 }
