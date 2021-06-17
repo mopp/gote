@@ -85,12 +85,12 @@ func (w *MainWidget) Updated(n *app.Note) {
 
 func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.Selector, app gowid.IApp) bool {
 	evk, ok := ev.(*tcell.EventKey)
-	r := evk.Rune()
 
 	if !ok {
-		goto skip
+		return w.Widget.UserInput(ev, size, focus, app)
 	}
 
+	r := evk.Rune()
 	if evk.Key() == tcell.KeyCtrlN || r == 'N' {
 		d := newCreateDialogWidget(func(app gowid.IApp, widget gowid.IWidget, name string) {
 			n := w.service.CreateNote(name)
@@ -131,6 +131,5 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 		return true
 	}
 
-skip:
 	return w.Widget.UserInput(ev, size, focus, app)
 }
