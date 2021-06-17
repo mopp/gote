@@ -59,8 +59,7 @@ func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 	return w.edit().UserInput(ev, size, focus, app)
 }
 
-func (w *editorWidget) SetNote(note *app.Note, app gowid.IApp) {
-	// TODO: w.service.ReadNoteBy(name)
+func (w *editorWidget) OpenNote(note *app.Note, app gowid.IApp) {
 	text, err := note.Read()
 	if err != nil {
 		log.Fatal(err)

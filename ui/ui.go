@@ -31,7 +31,7 @@ func NewMainWidget(service *app.Service, config *app.Config) *MainWidget {
 	titles = newTitlesWidget(
 		service.FetchAllNotes(),
 		func(note *app.Note, app gowid.IApp) {
-			editor.SetNote(note, app)
+			editor.OpenNote(note, app)
 
 			// TODO: define interface.
 			content.SetFocus(app, 2)
