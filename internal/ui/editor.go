@@ -7,13 +7,13 @@ import (
 	"github.com/gcla/gowid/widgets/pile"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
-	"github.com/mopp/gote/app"
+	"github.com/mopp/gote/internal/gote"
 	log "github.com/sirupsen/logrus"
 )
 
 type editorWidget struct {
 	*pile.Widget
-	note *app.Note
+	note *gote.Note
 }
 
 func newEditorWidget() *editorWidget {
@@ -57,7 +57,7 @@ func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 	return w.edit().UserInput(ev, size, focus, app)
 }
 
-func (w *editorWidget) OpenNote(note *app.Note, app gowid.IApp) {
+func (w *editorWidget) OpenNote(note *gote.Note, app gowid.IApp) {
 	text, err := note.Read()
 	if err != nil {
 		log.Fatal(err)

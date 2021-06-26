@@ -7,19 +7,19 @@ import (
 	"github.com/gcla/gowid/widgets/styled"
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gdamore/tcell"
-	"github.com/mopp/gote/app"
+	"github.com/mopp/gote/internal/gote"
 )
 
-type OnNoteSelected func(*app.Note, gowid.IApp)
+type OnNoteSelected func(*gote.Note, gowid.IApp)
 type OnCreate func(app gowid.IApp)
 
 type titlesWidget struct {
 	*list.Widget
-	notes          []*app.Note
+	notes          []*gote.Note
 	onNoteSelected OnNoteSelected
 }
 
-func newTitlesWidget(notes []*app.Note, f1 OnNoteSelected) *titlesWidget {
+func newTitlesWidget(notes []*gote.Note, f1 OnNoteSelected) *titlesWidget {
 	return &titlesWidget{
 		Widget:         list.New(createWalker(notes)),
 		notes:          notes,
@@ -62,9 +62,9 @@ func (w *titlesWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 	return false
 }
 
-func (w *titlesWidget) AddNote(n *app.Note, gapp gowid.IApp) {
+func (w *titlesWidget) AddNote(n *gote.Note, gapp gowid.IApp) {
 	w.notes = append(w.notes, n)
-	app.SortNotes(w.notes)
+	gote.SortNotes(w.notes)
 	w.SetWalker(createWalker(w.notes), gapp)
 }
 
@@ -75,7 +75,7 @@ func createTitleText(title string) *isselected.Widget {
 	return isselected.New(t, nil, focused)
 }
 
-func createWalker(notes []*app.Note) *list.SimpleListWalker {
+func createWalker(notes []*gote.Note) *list.SimpleListWalker {
 	ws := make([]gowid.IWidget, len(notes))
 
 	for i, n := range notes {

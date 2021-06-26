@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/gcla/gowid"
-	"github.com/mopp/gote/app"
-	"github.com/mopp/gote/ui"
+	"github.com/mopp/gote/internal/gote"
+	"github.com/mopp/gote/internal/ui"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,8 +13,8 @@ func main() {
 	logFile := redirectLogger("gote.log")
 	defer logFile.Close()
 
-	config := app.NewConfig()
-	service := app.NewService(config)
+	config := gote.NewConfig()
+	service := gote.NewService(config)
 	mainWidget, err := ui.NewMainWidget(service, config)
 
 	if err != nil {

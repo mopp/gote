@@ -13,19 +13,19 @@ import (
 	"github.com/gcla/gowid/widgets/text"
 	"github.com/gcla/gowid/widgets/vpadding"
 	"github.com/gdamore/tcell"
-	"github.com/mopp/gote/app"
+	"github.com/mopp/gote/internal/gote"
 )
 
 type MainWidget struct {
 	*framed.Widget
-	service    *app.Service
+	service    *gote.Service
 	titles     *titlesWidget
 	editor     *editorWidget
 	content    *columns.Widget
 	quitDialog *dialog.Widget
 }
 
-func NewMainWidget(service *app.Service, config *app.Config) (*MainWidget, error) {
+func NewMainWidget(service *gote.Service, config *gote.Config) (*MainWidget, error) {
 	var titles *titlesWidget
 	var editor *editorWidget
 	var content *columns.Widget
@@ -39,7 +39,7 @@ func NewMainWidget(service *app.Service, config *app.Config) (*MainWidget, error
 
 	titles = newTitlesWidget(
 		notes,
-		func(note *app.Note, app gowid.IApp) {
+		func(note *gote.Note, app gowid.IApp) {
 			editor.OpenNote(note, app)
 			// TODO: Define struct and method to change focus.
 			content.SetFocus(app, 2)
