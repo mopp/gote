@@ -90,11 +90,19 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 		w.findOrCreateDailyNoteToday(app)
 		return true
 	} else if evk.Key() == tcell.KeyCtrlG {
-		// TODO: Define struct and method to change focus.
-		w.content.SetFocus(app, 0)
+		w.setFocusOnTitles(app)
+		return true
 	}
 
 	return w.Widget.UserInput(ev, size, focus, app)
+}
+
+func (w *MainWidget) setFocusOnTitles(app gowid.IApp) {
+	w.content.SetFocus(app, 0)
+}
+
+func (w *MainWidget) setFocusOnEditor(app gowid.IApp) {
+	w.content.SetFocus(app, 0)
 }
 
 func (w *MainWidget) createNewNote(app gowid.IApp) {
@@ -118,8 +126,7 @@ func (w *MainWidget) findOrCreateDailyNoteToday(app gowid.IApp) {
 	if n != nil {
 		// Already exist.
 		w.editor.OpenNote(n, app)
-		// TODO: Define struct and method to change focus.
-		w.content.SetFocus(app, 2)
+		w.setFocusOnEditor(app)
 		return
 	}
 
@@ -133,8 +140,7 @@ func (w *MainWidget) findOrCreateDailyNoteToday(app gowid.IApp) {
 
 	w.titles.AddNote(n, app)
 	w.editor.OpenNote(n, app)
-	// TODO: Define struct and method to change focus.
-	w.content.SetFocus(app, 2)
+	w.setFocusOnEditor(app)
 
 	return
 }
