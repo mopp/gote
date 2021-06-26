@@ -97,6 +97,9 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 	} else if evk.Key() == tcell.KeyCtrlD {
 		w.findOrCreateDailyNoteToday(app)
 		return true
+	} else if evk.Key() == tcell.KeyCtrlG {
+		// TODO: Define struct and method to change focus.
+		w.content.SetFocus(app, 0)
 	}
 
 	return w.Widget.UserInput(ev, size, focus, app)
