@@ -62,10 +62,10 @@ func (w *titlesWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 	return false
 }
 
-func (w *titlesWidget) AddNote(n *app.Note, app gowid.IApp) {
-	// TODO: Sort
+func (w *titlesWidget) AddNote(n *app.Note, gapp gowid.IApp) {
 	w.notes = append(w.notes, n)
-	w.SetWalker(createWalker(w.notes), app)
+	app.SortNotes(w.notes)
+	w.SetWalker(createWalker(w.notes), gapp)
 }
 
 func createTitleText(title string) *isselected.Widget {

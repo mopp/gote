@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -60,4 +61,28 @@ func (n *Note) String() string {
 
 func (n *Note) path() string {
 	return n.dir + n.name
+}
+
+func SortNotes(notes []*Note) {
+	sort.Sort(
+		&NoteSorter{
+			notes: notes,
+		},
+	)
+}
+
+type NoteSorter struct {
+	notes []*Note
+}
+
+func (s *NoteSorter) Len() int {
+	return len(s.notes)
+}
+
+func (s *NoteSorter) Swap(i, j int) {
+	s.notes[i], s.notes[j] = s.notes[j], s.notes[i]
+}
+
+func (s *NoteSorter) Less(i, j int) bool {
+	return s.notes[i].Title() < s.notes[j].Title()
 }
