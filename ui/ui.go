@@ -84,9 +84,8 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 		return w.Widget.UserInput(ev, size, focus, app)
 	}
 
-	r := evk.Rune()
 	k := evk.Key()
-	if k == tcell.KeyCtrlN || r == 'N' {
+	if k == tcell.KeyCtrlN {
 		w.createNewNote(app)
 		return true
 	} else if k == tcell.KeyCtrlD {
