@@ -92,44 +92,54 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 
 	r := evk.Rune()
 	if evk.Key() == tcell.KeyCtrlN || r == 'N' {
-		d := newCreateDialogWidget(func(app gowid.IApp, widget gowid.IWidget, name string) {
-			n := w.service.CreateNote(name)
-			w.titles.AddNote(n, app)
-		})
-		d.Open(w, gowid.RenderWithRatio{R: 0.5}, app)
-
+		w.createNewNote(app)
 		return true
 	} else if evk.Key() == tcell.KeyCtrlD {
-		n, err := w.service.FindDailyNoteToday()
-		if err != nil {
-			msg := fmt.Sprintf("could not find daily note: %v", err)
-			w.editor.SetStatusLine(msg, app)
-			return true
-		}
-
-		if n != nil {
-			// Already exist.
-			w.editor.OpenNote(n, app)
-			// TODO: Define struct and method to change focus.
-			w.content.SetFocus(app, 2)
-			return true
-		}
-
-		n, err = w.service.CreateDailyNoteTody()
-
-		if err != nil {
-			msg := fmt.Sprintf("could not create daily note: %v", err)
-			w.editor.SetStatusLine(msg, app)
-			return true
-		}
-
-		w.titles.AddNote(n, app)
-		w.editor.OpenNote(n, app)
-		// TODO: Define struct and method to change focus.
-		w.content.SetFocus(app, 2)
-
+		w.findOrCreateDailyNoteToday(app)
 		return true
 	}
 
 	return w.Widget.UserInput(ev, size, focus, app)
+}
+
+func (w *MainWidget) createNewNote(app gowid.IApp) {
+	onCreate := func(app gowid.IApp, widget gowid.IWidget, name string) {
+		n := w.service.CreateNote(name)
+		w.titles.AddNote(n, app)
+	}
+
+	newCreateDialogWidget(onCreate).
+		Open(w, gowid.RenderWithRatio{R: 0.5}, app)
+}
+
+func (w *MainWidget) findOrCreateDailyNoteToday(app gowid.IApp) {
+	n, err := w.service.FindDailyNoteToday()
+	if err != nil {
+		msg := fmt.Sprintf("could not find daily note: %v", err)
+		w.editor.SetStatusLine(msg, app)
+		return
+	}
+
+	if n != nil {
+		// Already exist.
+		w.editor.OpenNote(n, app)
+		// TODO: Define struct and method to change focus.
+		w.content.SetFocus(app, 2)
+		return
+	}
+
+	n, err = w.service.CreateDailyNoteTody()
+
+	if err != nil {
+		msg := fmt.Sprintf("could not create daily note: %v", err)
+		w.editor.SetStatusLine(msg, app)
+		return
+	}
+
+	w.titles.AddNote(n, app)
+	w.editor.OpenNote(n, app)
+	// TODO: Define struct and method to change focus.
+	w.content.SetFocus(app, 2)
+
+	return
 }
