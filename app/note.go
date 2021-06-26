@@ -45,6 +45,10 @@ func (n *Note) WriteFrom(w io.Reader) error {
 		return fmt.Errorf("could not open note at %s: %w", n.path(), err)
 	}
 
+	err = f.Truncate(0)
+	if err != nil {
+		return err
+	}
 	_, err = io.Copy(f, w)
 
 	return err
