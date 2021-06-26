@@ -75,14 +75,6 @@ func NewMainWidget(service *app.Service, config *app.Config) (*MainWidget, error
 	}, nil
 }
 
-func (w *MainWidget) Created(n *app.Note) {
-
-}
-
-func (w *MainWidget) Updated(n *app.Note) {
-
-}
-
 func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gowid.Selector, app gowid.IApp) bool {
 	evk, ok := ev.(*tcell.EventKey)
 
