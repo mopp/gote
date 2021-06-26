@@ -5,6 +5,7 @@ import (
 
 	"github.com/gcla/gowid"
 	"github.com/gcla/gowid/widgets/columns"
+	"github.com/gcla/gowid/widgets/dialog"
 	"github.com/gcla/gowid/widgets/divider"
 	"github.com/gcla/gowid/widgets/fill"
 	"github.com/gcla/gowid/widgets/framed"
@@ -17,10 +18,11 @@ import (
 
 type MainWidget struct {
 	*framed.Widget
-	service *app.Service
-	titles  *titlesWidget
-	editor  *editorWidget
-	content *columns.Widget
+	service    *app.Service
+	titles     *titlesWidget
+	editor     *editorWidget
+	content    *columns.Widget
+	quitDialog *dialog.Widget
 }
 
 func NewMainWidget(service *app.Service, config *app.Config) (*MainWidget, error) {
@@ -83,14 +85,20 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 	}
 
 	r := evk.Rune()
-	if evk.Key() == tcell.KeyCtrlN || r == 'N' {
+	k := evk.Key()
+	if k == tcell.KeyCtrlN || r == 'N' {
 		w.createNewNote(app)
 		return true
-	} else if evk.Key() == tcell.KeyCtrlD {
+	} else if k == tcell.KeyCtrlD {
 		w.findOrCreateDailyNoteToday(app)
 		return true
-	} else if evk.Key() == tcell.KeyCtrlG {
+	} else if k == tcell.KeyCtrlG {
 		w.setFocusOnTitles(app)
+		return true
+	} else if k == tcell.KeyCtrlC || k == tcell.KeyESC {
+		if w.quitDialog == nil {
+			w.confirmQuit(app)
+		}
 		return true
 	}
 
@@ -143,4 +151,29 @@ func (w *MainWidget) findOrCreateDailyNoteToday(app gowid.IApp) {
 	w.setFocusOnEditor(app)
 
 	return
+}
+
+func (w *MainWidget) confirmQuit(app gowid.IApp) {
+	w.quitDialog = dialog.New(
+		framed.NewSpace(text.New("Do you want to quit?")),
+		dialog.Options{
+			Buttons: []dialog.Button{
+				{
+					Msg: "Quit",
+					Action: func(app gowid.IApp, widget gowid.IWidget) {
+						app.Quit()
+					},
+				},
+				{
+					Msg: "Cancel",
+					Action: func(app gowid.IApp, widget gowid.IWidget) {
+						w.quitDialog.Close(app)
+						w.quitDialog = nil
+					},
+				},
+			},
+		},
+	)
+
+	w.quitDialog.Open(w, gowid.RenderWithRatio{R: 0.5}, app)
 }
