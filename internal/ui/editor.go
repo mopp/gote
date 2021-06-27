@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/gcla/gowid"
 	"github.com/gcla/gowid/widgets/divider"
 	"github.com/gcla/gowid/widgets/edit"
@@ -44,8 +46,12 @@ func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 	}
 
 	if evk.Key() == tcell.KeyCtrlS {
-		w.note.WriteFrom(w.edit())
-		w.statusLine().SetText("Saved.", app)
+		err := w.note.WriteFrom(w.edit())
+		if err != nil {
+			w.statusLine().SetText(fmt.Sprintf("Error: %v", err), app)
+		} else {
+			w.statusLine().SetText("Saved.", app)
+		}
 
 		return true
 	}

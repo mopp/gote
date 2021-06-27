@@ -4,3 +4,7 @@ gote:
 .PHONY: run
 run: gote
 	./cmd/gote/gote
+
+.PHONY: lint
+lint:
+	golangci-lint run

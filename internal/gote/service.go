@@ -16,11 +16,14 @@ func NewService(c *Config) *Service {
 	}
 }
 
-func (s *Service) CreateNote(name string) *Note {
+func (s *Service) CreateNote(name string) (*Note, error) {
 	n := newNote(s.config.noteDir, name)
-	n.Write("")
+	err := n.Write("")
+	if err != nil {
+		return nil, fmt.Errorf("could not create note: %w", err)
+	}
 
-	return n
+	return n, nil
 }
 
 func (s *Service) FindDailyNoteToday() (*Note, error) {
@@ -58,7 +61,10 @@ func (s *Service) CreateDailyNoteTody() (*Note, error) {
 
 `
 
-		n.Write(fmt.Sprintf(t, today))
+		err := n.Write(fmt.Sprintf(t, today))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return n, nil

@@ -114,8 +114,13 @@ func (w *MainWidget) setFocusOnEditor(app gowid.IApp) {
 
 func (w *MainWidget) createNewNote(app gowid.IApp) {
 	onCreate := func(app gowid.IApp, widget gowid.IWidget, name string) {
-		n := w.service.CreateNote(name)
-		w.titles.AddNote(n, app)
+		n, err := w.service.CreateNote(name)
+
+		if err != nil {
+			panic(err)
+		} else {
+			w.titles.AddNote(n, app)
+		}
 	}
 
 	newCreateDialogWidget(onCreate).
@@ -148,8 +153,6 @@ func (w *MainWidget) findOrCreateDailyNoteToday(app gowid.IApp) {
 	w.titles.AddNote(n, app)
 	w.editor.OpenNote(n, app)
 	w.setFocusOnEditor(app)
-
-	return
 }
 
 func (w *MainWidget) confirmQuit(app gowid.IApp) {
