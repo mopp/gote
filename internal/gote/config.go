@@ -15,3 +15,7 @@ func NewConfig() *Config {
 		dailyNoteTitleFormat: "2006-01-02",
 	}
 }
+
+func (c *Config) NoteDir() string {
+	return c.noteDir
+}
