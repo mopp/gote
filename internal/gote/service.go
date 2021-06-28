@@ -38,7 +38,7 @@ func (s *Service) FindDailyNoteToday() (*Note, error) {
 	return n, nil
 }
 
-func (s *Service) CreateDailyNoteTody() (*Note, error) {
+func (s *Service) CreateDailyNoteToday() (*Note, error) {
 	today := s.generateDailyNoteBasenameToday()
 	title := today + ".md"
 
