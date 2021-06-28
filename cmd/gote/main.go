@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/gcla/gowid"
@@ -14,6 +15,15 @@ func main() {
 	defer logFile.Close()
 
 	config := gote.NewConfig()
+
+	if _, err := os.Stat(config.NoteDir()); os.IsNotExist(err) {
+		err = os.Mkdir(config.NoteDir(), 0755)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("cannot create NoteDir: %v", err))
+		}
+		log.Info("NoteDir created.")
+	}
+
 	service := gote.NewService(config)
 	mainWidget, err := ui.NewMainWidget(service, config)
 
