@@ -142,7 +142,7 @@ func (w *MainWidget) findOrCreateDailyNoteToday(app gowid.IApp) {
 		return
 	}
 
-	n, err = w.service.CreateDailyNoteTody()
+	n, err = w.service.CreateDailyNoteToday()
 
 	if err != nil {
 		msg := fmt.Sprintf("could not create daily note: %v", err)
