@@ -94,7 +94,7 @@ func (w *MainWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus gow
 	} else if k == tcell.KeyCtrlG {
 		w.setFocusOnTitles(app)
 		return true
-	} else if k == tcell.KeyCtrlC || k == tcell.KeyESC {
+	} else if k == tcell.KeyESC {
 		if w.quitDialog == nil {
 			w.confirmQuit(app)
 		}

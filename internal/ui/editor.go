@@ -11,6 +11,7 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/mopp/gote/internal/gote"
 	log "github.com/sirupsen/logrus"
+	"golang.design/x/clipboard"
 )
 
 type editorWidget struct {
@@ -52,6 +53,11 @@ func (w *editorWidget) UserInput(ev interface{}, size gowid.IRenderSize, focus g
 		} else {
 			w.statusLine().SetText("Saved.", app)
 		}
+
+		return true
+	} else if evk.Key() == tcell.KeyCtrlC {
+		clipboard.Write(clipboard.FmtText, []byte(w.edit().Text()))
+		w.statusLine().SetText("Copied to clipboard.", app)
 
 		return true
 	}
